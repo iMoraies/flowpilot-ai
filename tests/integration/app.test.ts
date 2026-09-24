@@ -43,7 +43,7 @@ describe('app foundation', () => {
     await app.close();
   });
 
-  it('allows the configured web origin for browser requests', async () => {
+  it('allows configured web origins and mutating methods for browser requests', async () => {
     const app = await buildApp({
       env: testEnv,
       authRepository: new FakeAuthRepository(),
@@ -57,13 +57,29 @@ describe('app foundation', () => {
       method: 'OPTIONS',
       url: '/api/v1/workflows',
       headers: {
-        origin: testEnv.WEB_ORIGIN!,
-        'access-control-request-method': 'GET',
+        origin: 'http://localhost:5173',
+        'access-control-request-method': 'PATCH',
+        'access-control-request-headers': 'authorization,content-type',
       },
     });
 
     expect(response.statusCode).toBe(204);
-    expect(response.headers['access-control-allow-origin']).toBe(testEnv.WEB_ORIGIN);
+    expect(response.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+    expect(response.headers['access-control-allow-methods']).toContain('PATCH');
+    expect(response.headers['access-control-allow-headers']).toContain('Authorization');
+
+    const loopbackResponse = await app.inject({
+      method: 'OPTIONS',
+      url: '/api/v1/tasks/example',
+      headers: {
+        origin: 'http://127.0.0.1:5173',
+        'access-control-request-method': 'PATCH',
+        'access-control-request-headers': 'authorization,content-type',
+      },
+    });
+
+    expect(loopbackResponse.statusCode).toBe(204);
+    expect(loopbackResponse.headers['access-control-allow-origin']).toBe('http://127.0.0.1:5173');
 
     await app.close();
   });

@@ -36,6 +36,8 @@ type BuildAppOptions = {
 };
 
 const REQUEST_ID_HEADER = 'x-request-id';
+const CORS_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
+const CORS_ALLOWED_HEADERS = ['Authorization', 'Content-Type', 'Idempotency-Key', REQUEST_ID_HEADER];
 
 function getRequestId(request: { headers: Record<string, string | string[] | undefined> }): string {
   const header = request.headers[REQUEST_ID_HEADER];
@@ -80,7 +82,10 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
   });
 
   await app.register(fastifyCors, {
-    origin: appEnv.WEB_ORIGIN ? appEnv.WEB_ORIGIN.split(',').map((origin) => origin.trim()) : false,
+    origin: appEnv.WEB_ORIGIN ? appEnv.WEB_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean) : false,
+    methods: CORS_METHODS,
+    allowedHeaders: CORS_ALLOWED_HEADERS,
+    exposedHeaders: [REQUEST_ID_HEADER],
     credentials: true,
   });
 

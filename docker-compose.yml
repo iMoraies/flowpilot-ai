@@ -8,7 +8,7 @@ services:
       HOST: 0.0.0.0
       LOG_LEVEL: info
       ENABLE_SWAGGER: true
-      WEB_ORIGIN: http://localhost:5173
+      WEB_ORIGIN: http://localhost:5173,http://127.0.0.1:5173
       DATABASE_URL: postgresql://flowpilot:flowpilot_dev_password@postgres:5432/flowpilot_ai?schema=public
       REDIS_URL: redis://redis:6379
       JWT_SECRET: replace-with-a-long-random-secret-for-local-development
@@ -41,7 +41,7 @@ services:
       HOST: 0.0.0.0
       LOG_LEVEL: info
       ENABLE_SWAGGER: false
-      WEB_ORIGIN: http://localhost:5173
+      WEB_ORIGIN: http://localhost:5173,http://127.0.0.1:5173
       DATABASE_URL: postgresql://flowpilot:flowpilot_dev_password@postgres:5432/flowpilot_ai?schema=public
       REDIS_URL: redis://redis:6379
       JWT_SECRET: replace-with-a-long-random-secret-for-local-development
