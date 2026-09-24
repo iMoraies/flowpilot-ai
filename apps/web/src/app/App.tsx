@@ -33,6 +33,7 @@ export function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route element={<ProtectedApp />}>
         <Route path="/" element={<DashboardPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/workflows" element={<WorkflowsPage />} />
         <Route path="/workflows/new" element={<WorkflowEditorPage />} />
         <Route path="/workflows/:id" element={<WorkflowDetailPage />} />
@@ -42,6 +43,7 @@ export function App() {
         <Route path="/tasks" element={<TasksPage />} />
         <Route path="/audit" element={<AuditPage />} />
         <Route path="/system" element={<SystemPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   );
