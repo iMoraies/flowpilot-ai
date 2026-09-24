@@ -41,10 +41,11 @@ The system is a modular monolith. PostgreSQL is the source of truth. Redis power
 - Prometheus-style metrics.
 - Health and readiness endpoints.
 - Swagger/OpenAPI documentation.
+- React web console for operations, workflow building, executions, tasks, audit logs, and system status.
 
 ## Tech Stack
 
-Node.js, TypeScript, Fastify, PostgreSQL, Prisma, Redis, BullMQ, Zod, Vitest, Docker, Docker Compose, OpenAPI, Prometheus metrics, OpenTelemetry base.
+Node.js, TypeScript, Fastify, React, Vite, PostgreSQL, Prisma, Redis, BullMQ, Zod, Vitest, Docker, Docker Compose, OpenAPI, Prometheus metrics, OpenTelemetry base.
 
 ## How It Works
 
@@ -87,6 +88,8 @@ src/
     queue/
     redis/
   shared/
+apps/
+  web/
 ```
 
 ## Getting Started
@@ -106,11 +109,48 @@ In another terminal:
 npm run worker
 ```
 
+For the web console:
+
+```bash
+npm --prefix apps/web install
+npm run web:dev
+```
+
 Demo credentials:
 
 ```text
 Email: admin@flowpilot.local
 Password: demo-password
+```
+
+## Web Interface
+
+The web console runs at:
+
+```text
+http://localhost:5173
+```
+
+It provides:
+
+- Sign in and protected application routes.
+- Dashboard with workflow, execution, task, and readiness summaries.
+- Workflow list, detail, creation, editing, activation, deactivation, and execution start.
+- Execution list and detailed step timeline.
+- Task status management.
+- Audit log viewer.
+- System status for `/health`, `/ready`, and `/metrics`.
+
+The frontend reads the API base URL from `VITE_API_URL`. Local development defaults to:
+
+```text
+VITE_API_URL=http://localhost:3333
+```
+
+The API allows browser access through `WEB_ORIGIN`. For local development:
+
+```text
+WEB_ORIGIN=http://localhost:5173
 ```
 
 ## Environment Variables
@@ -129,6 +169,7 @@ Services:
 
 - `api`
 - `worker`
+- `web`
 - `postgres`
 - `redis`
 
@@ -145,6 +186,10 @@ npm run prisma:generate
 npm run lint
 npm run typecheck
 npm test
+npm run web:lint
+npm run web:typecheck
+npm run web:test
+npm run web:build
 npm run coverage
 npm run build
 npm audit --audit-level=moderate
@@ -187,7 +232,6 @@ ADRs live in `docs/adr/`.
 
 ## Current Limitations
 
-- No UI.
 - No real email/Slack/WhatsApp provider.
 - No real AI provider by default.
 - No MFA, OAuth, SSO, or API keys.

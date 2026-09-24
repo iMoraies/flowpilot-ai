@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import fastify, { type FastifyInstance } from 'fastify';
+import fastifyCors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';
 import fastifyRateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
@@ -76,6 +77,11 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
 
   await app.register(fastifyRateLimit, {
     global: false,
+  });
+
+  await app.register(fastifyCors, {
+    origin: appEnv.WEB_ORIGIN ? appEnv.WEB_ORIGIN.split(',').map((origin) => origin.trim()) : false,
+    credentials: true,
   });
 
   if (appEnv.ENABLE_SWAGGER) {

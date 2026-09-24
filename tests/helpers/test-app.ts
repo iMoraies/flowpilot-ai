@@ -8,6 +8,7 @@ export const testEnv: Env = {
   HOST: '127.0.0.1',
   LOG_LEVEL: 'silent',
   ENABLE_SWAGGER: false,
+  WEB_ORIGIN: 'http://localhost:5173',
   DATABASE_URL: 'postgresql://user:password@localhost:5432/flowpilot',
   REDIS_URL: 'redis://localhost:6379',
   JWT_SECRET: 'test-secret-with-at-least-thirty-two-characters',

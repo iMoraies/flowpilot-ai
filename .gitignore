@@ -1,11 +1,14 @@
 node_modules/
+apps/web/node_modules/
 dist/
+apps/web/dist/
 coverage/
 .env
 .env.*
 !.env.example
 *.log
 npm-debug.log*
+*.tsbuildinfo
 .DS_Store
 .idea/
 .vscode/

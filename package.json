@@ -15,12 +15,18 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
+    "web:dev": "npm --prefix apps/web run dev",
+    "web:build": "npm --prefix apps/web run build",
+    "web:lint": "npm --prefix apps/web run lint",
+    "web:test": "npm --prefix apps/web run test",
+    "web:typecheck": "npm --prefix apps/web run typecheck",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:seed": "tsx prisma/seed.ts",
     "demo": "tsx scripts/demo.ts"
   },
   "dependencies": {
+    "@fastify/cors": "^11.3.0",
     "@fastify/jwt": "^10.2.2",
     "@fastify/rate-limit": "^11.2.0",
     "@fastify/swagger": "^9.5.1",

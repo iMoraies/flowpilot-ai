@@ -8,6 +8,7 @@ services:
       HOST: 0.0.0.0
       LOG_LEVEL: info
       ENABLE_SWAGGER: true
+      WEB_ORIGIN: http://localhost:5173
       DATABASE_URL: postgresql://flowpilot:flowpilot_dev_password@postgres:5432/flowpilot_ai?schema=public
       REDIS_URL: redis://redis:6379
       JWT_SECRET: replace-with-a-long-random-secret-for-local-development
@@ -40,6 +41,7 @@ services:
       HOST: 0.0.0.0
       LOG_LEVEL: info
       ENABLE_SWAGGER: false
+      WEB_ORIGIN: http://localhost:5173
       DATABASE_URL: postgresql://flowpilot:flowpilot_dev_password@postgres:5432/flowpilot_ai?schema=public
       REDIS_URL: redis://redis:6379
       JWT_SECRET: replace-with-a-long-random-secret-for-local-development
@@ -80,6 +82,22 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        VITE_API_URL: http://localhost:3333
+    ports:
+      - "5173:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/health || exit 1"]
+      interval: 15s
       timeout: 5s
       retries: 5
 

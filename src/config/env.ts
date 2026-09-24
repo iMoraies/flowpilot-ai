@@ -22,6 +22,7 @@ const envSchema = z.object({
   HOST: z.string().min(1).default('0.0.0.0'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   ENABLE_SWAGGER: booleanFromString.default(true),
+  WEB_ORIGIN: z.string().optional(),
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().url(),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must have at least 32 characters'),
