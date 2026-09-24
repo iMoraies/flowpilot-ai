@@ -2,48 +2,105 @@
 
 ## Authentication Model
 
-FlowPilot AI uses short-lived JWT access tokens and persisted refresh tokens. Access tokens carry only minimal claims: `sub`, `organizationId`, and `role`.
+FlowPilot AI uses short-lived JWT access tokens and persisted refresh tokens. Access token claims are minimal: `sub`, `organizationId`, and `role`.
 
 ## Password Hashing
 
-Passwords are never stored or returned in plain text. They are hashed with Argon2id before persistence. The current minimum password length is 10 characters, which keeps the rule usable while blocking very weak passwords.
+Passwords are hashed with Argon2id. Passwords and password hashes are never returned by the API.
 
 ## Refresh Tokens
 
-Refresh tokens are generated with high entropy and stored only as SHA-256 hashes. On successful refresh, the old token is revoked and a new refresh token is issued.
+Refresh tokens are generated with high entropy and stored only as SHA-256 hashes. Refresh token rotation revokes the old token whenever a new one is issued.
 
-For this API-only phase, refresh tokens are returned in the response body. For browser applications, the preferred approach is to store them in secure, HttpOnly, SameSite cookies.
+For this API-only project, refresh tokens are returned in the response body. A browser production app should prefer Secure, HttpOnly, SameSite cookies.
 
 ## RBAC
 
-Initial roles are:
+Roles:
 
-- `ADMIN`: organization administration and user management.
-- `MANAGER`: can list organization users.
-- `MEMBER`: regular authenticated user.
-
-No granular permission system exists yet.
+- `ADMIN`: full organization administration.
+- `MANAGER`: workflow and user visibility/management.
+- `MEMBER`: view and execute workflows.
 
 ## Multi-Tenancy
 
-Every authenticated request derives `organizationId` from the access token. Client-provided `organizationId` values are not trusted for protected resources. User management queries always filter by the authenticated organization.
+Protected queries derive `organizationId` from the authenticated token. Client-provided organization IDs are not trusted.
+
+## HTTP Integration Security
+
+HTTP steps use a centralized safe client. It allows only HTTP/HTTPS, applies timeouts, limits response size, strips sensitive outbound headers, and blocks localhost/private network targets.
+
+Residual SSRF risks remain around DNS rebinding and infrastructure-specific metadata endpoints. Production deployments should enforce egress network policy.
 
 ## Secrets
 
-Secrets must come from environment variables and must not be committed. `.env.example` contains placeholders only.
+Secrets are environment variables. `.env.example` contains placeholders only. Integrations currently accept non-sensitive configuration only; secret manager support is future roadmap.
 
 ## Logging
 
-Logs use structured Pino-compatible output. Passwords, tokens, secrets, cookies, and authorization headers are redacted. Security events such as login success/failure, refresh, logout, user creation, and role changes are logged without token or password values.
+Authorization headers, cookies, passwords, tokens, and obvious secrets are redacted. Payloads are not logged indiscriminately.
 
 ## Rate Limiting
 
-Authentication-sensitive endpoints use route-level rate limiting. The default is 20 requests per minute for login, register, and refresh, which is permissive for development while limiting simple brute-force attempts.
+Login, register, and refresh have route-level rate limiting. For multi-instance deployments, rate limiting should use a shared Redis backend.
 
-## Known Residual Risks
+## Threat Model
 
-- No MFA, OAuth, SSO, or API keys yet.
-- No access-token blacklist; logout revokes refresh tokens only.
-- Rate limiting is basic and should be backed by Redis before multiple API instances are used.
-- Refresh token replay detection is limited to rejecting already revoked tokens.
-- Audit logs are structured application logs for now, not a durable audit table.
+### Assets
+
+- User identities and password hashes.
+- Refresh token hashes.
+- Organization data.
+- Workflow definitions and execution results.
+- Audit logs.
+
+### Attack Surfaces
+
+- Public REST API.
+- Authentication endpoints.
+- Workflow HTTP integration step.
+- Worker job processing.
+- Swagger and metrics endpoints.
+
+### Trust Boundaries
+
+- Client to API.
+- API/worker to PostgreSQL.
+- API/worker to Redis.
+- Worker to external HTTP targets.
+- Workflow engine to AI provider.
+
+### Key Threats
+
+- Brute force login attempts.
+- User enumeration.
+- Refresh token theft or replay.
+- Broken access control across tenants.
+- SSRF through HTTP steps.
+- Sensitive data exposure through logs.
+- Dependency vulnerabilities.
+- Privilege escalation through role changes.
+
+### Mitigations
+
+- Argon2id password hashing.
+- Generic login failure response.
+- Refresh token hashing and rotation.
+- RBAC guards.
+- Organization-scoped queries.
+- Safe HTTP client and URL validation.
+- Structured log redaction.
+- npm audit in CI.
+- Last-admin protection.
+
+### Residual Risks
+
+- No MFA yet.
+- No access token blacklist.
+- No production-grade secret manager.
+- No full egress firewall in Docker Compose.
+- Audit events are stored but do not yet include tamper-proof retention.
+
+## Least Privilege
+
+The app uses scoped roles, avoids committing secrets, runs Docker runtime as a non-root user, and protects administrative endpoints with RBAC.

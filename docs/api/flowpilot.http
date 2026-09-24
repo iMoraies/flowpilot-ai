@@ -1,0 +1,93 @@
+@baseUrl = http://localhost:3333
+@accessToken = paste-access-token-here
+@refreshToken = paste-refresh-token-here
+@workflowId = paste-workflow-id-here
+@stepId = paste-step-id-here
+@executionId = paste-execution-id-here
+
+### Register
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "organizationName": "Acme Demo",
+  "name": "Acme Admin",
+  "email": "admin@acme.local",
+  "password": "valid-password"
+}
+
+### Login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@flowpilot.local",
+  "password": "demo-password"
+}
+
+### Me
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer {{accessToken}}
+
+### Create workflow
+POST {{baseUrl}}/api/v1/workflows
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Support Automation",
+  "description": "Classifies support messages and creates tasks."
+}
+
+### Add manual step
+POST {{baseUrl}}/api/v1/workflows/{{workflowId}}/steps
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Receive request",
+  "type": "MANUAL",
+  "position": 1,
+  "configuration": {}
+}
+
+### Activate workflow
+POST {{baseUrl}}/api/v1/workflows/{{workflowId}}/activate
+Authorization: Bearer {{accessToken}}
+
+### Execute workflow
+POST {{baseUrl}}/api/v1/workflows/{{workflowId}}/executions
+Authorization: Bearer {{accessToken}}
+Idempotency-Key: demo-key-1
+Content-Type: application/json
+
+{
+  "input": {
+    "message": "Customer has a TECHNICAL problem"
+  }
+}
+
+### List executions
+GET {{baseUrl}}/api/v1/executions
+Authorization: Bearer {{accessToken}}
+
+### Get execution
+GET {{baseUrl}}/api/v1/executions/{{executionId}}
+Authorization: Bearer {{accessToken}}
+
+### Tasks
+GET {{baseUrl}}/api/v1/tasks
+Authorization: Bearer {{accessToken}}
+
+### Audit logs
+GET {{baseUrl}}/api/v1/audit-logs
+Authorization: Bearer {{accessToken}}
+
+### Metrics
+GET {{baseUrl}}/metrics
+
+### Health
+GET {{baseUrl}}/health
+
+### Readiness
+GET {{baseUrl}}/ready

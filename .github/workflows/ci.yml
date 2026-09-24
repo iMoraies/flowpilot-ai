@@ -9,6 +9,35 @@ on:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: flowpilot
+          POSTGRES_PASSWORD: flowpilot_dev_password
+          POSTGRES_DB: flowpilot_ai
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U flowpilot -d flowpilot_ai"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://flowpilot:flowpilot_dev_password@localhost:5432/flowpilot_ai?schema=public
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: ci-secret-with-at-least-thirty-two-characters
+      NODE_ENV: test
 
     steps:
       - name: Checkout
@@ -29,8 +58,17 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Prisma validate
+        run: npx prisma validate
+
       - name: Test
         run: npm test
 
+      - name: Coverage
+        run: npm run coverage
+
       - name: Build
         run: npm run build
+
+      - name: Audit
+        run: npm audit --audit-level=moderate
