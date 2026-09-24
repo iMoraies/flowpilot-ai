@@ -150,7 +150,7 @@ npm run build
 npm audit --audit-level=moderate
 ```
 
-Coverage is useful, but it does not guarantee quality by itself. The project focuses coverage on critical rules: auth, branching, validation, URL safety, and helpers.
+Coverage is useful, but it does not guarantee quality by itself. The current automated threshold is intentionally modest and should rise as more database-backed and worker integration tests are added. The project already focuses tests on critical rules: auth, branching, validation, URL safety, and helpers.
 
 ## API Documentation
 

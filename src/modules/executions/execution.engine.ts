@@ -108,7 +108,8 @@ export async function processExecution(executionId: string, logger: FastifyBaseL
         },
       });
 
-      currentStepId = nextStepId ?? nextLinearStep(snapshot, step);
+      currentStepId =
+        step.configuration.end === true ? undefined : nextStepId ?? nextLinearStep(snapshot, step);
     }
 
     await prisma.execution.update({

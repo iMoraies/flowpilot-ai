@@ -81,6 +81,7 @@ async function main(): Promise<void> {
       configuration: {
         title: 'Handle technical support request',
         description: 'Created by demo workflow.',
+        end: true,
       },
       position: 4,
     },
@@ -93,6 +94,7 @@ async function main(): Promise<void> {
       type: 'NOTIFICATION',
       configuration: {
         message: 'A non-technical support request was classified and logged.',
+        end: true,
       },
       position: 5,
     },
