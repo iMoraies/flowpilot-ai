@@ -29,6 +29,8 @@ const envSchema = z.object({
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(30),
   AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(20),
   AUTH_RATE_LIMIT_WINDOW: z.string().min(1).default('1 minute'),
+  ENABLE_METRICS: booleanFromString.default(true),
+  AI_PROVIDER: z.enum(['mock']).default('mock'),
 });
 
 export type Env = z.infer<typeof envSchema>;

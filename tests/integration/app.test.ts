@@ -18,7 +18,7 @@ describe('app foundation', () => {
     await app.close();
   });
 
-  it('responds to /health with service status', async () => {
+  it('responds to /health as a liveness check', async () => {
     const app = await buildApp({
       env: testEnv,
       authRepository: new FakeAuthRepository(),
@@ -38,18 +38,12 @@ describe('app foundation', () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.headers['x-request-id']).toBe('test-request-id');
-    expect(response.json()).toEqual({
-      status: 'ok',
-      services: {
-        database: 'up',
-        redis: 'up',
-      },
-    });
+    expect(response.json()).toEqual({ status: 'ok' });
 
     await app.close();
   });
 
-  it('returns a degraded health response when a dependency is down', async () => {
+  it('returns a degraded readiness response when a dependency is down', async () => {
     const app = await buildApp({
       env: testEnv,
       authRepository: new FakeAuthRepository(),
@@ -61,7 +55,7 @@ describe('app foundation', () => {
 
     const response = await app.inject({
       method: 'GET',
-      url: '/health',
+      url: '/ready',
     });
 
     expect(response.statusCode).toBe(503);

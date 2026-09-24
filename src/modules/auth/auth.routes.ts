@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import type { Env } from '../../config/env';
 import { authenticate } from './auth.guards';
 import { AuthService } from './auth.service';
+import { recordAudit } from '../audit/audit.service';
 import {
   authJsonSchemas,
   loginSchema,
@@ -49,6 +50,13 @@ export async function registerAuthRoutes(app: FastifyInstance, env: Env): Promis
         { userId: response.user.id, organizationId: response.user.organizationId },
         'user created',
       );
+      await recordAudit({
+        organizationId: response.user.organizationId,
+        actorUserId: response.user.id,
+        action: 'USER_CREATED',
+        entityType: 'User',
+        entityId: response.user.id,
+      });
 
       return reply.status(201).send(response);
     },
@@ -82,6 +90,13 @@ export async function registerAuthRoutes(app: FastifyInstance, env: Env): Promis
           { userId: response.user.id, organizationId: response.user.organizationId },
           'login success',
         );
+        await recordAudit({
+          organizationId: response.user.organizationId,
+          actorUserId: response.user.id,
+          action: 'AUTH_LOGIN_SUCCESS',
+          entityType: 'User',
+          entityId: response.user.id,
+        });
         return response;
       } catch (error) {
         request.log.warn('login failure');
@@ -138,6 +153,13 @@ export async function registerAuthRoutes(app: FastifyInstance, env: Env): Promis
     async (request, reply) => {
       const body = logoutSchema.parse(request.body);
       await authService.logout(body.refreshToken);
+      await recordAudit({
+        organizationId: request.auth!.organizationId,
+        actorUserId: request.auth!.userId,
+        action: 'AUTH_LOGOUT',
+        entityType: 'User',
+        entityId: request.auth!.userId,
+      });
       request.log.info('logout');
       return reply.status(204).send();
     },

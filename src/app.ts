@@ -7,10 +7,17 @@ import swaggerUi from '@fastify/swagger-ui';
 import { loadEnv, type Env } from './config/env';
 import { checkDatabaseConnection, prisma } from './infrastructure/database/prisma';
 import { checkRedisConnection } from './infrastructure/redis/client';
+import { initializeTracing } from './infrastructure/observability/tracing';
+import { registerMetrics } from './infrastructure/observability/metrics';
 import type { AuthRepository } from './modules/auth/auth.repository';
 import { PrismaAuthRepository } from './modules/auth/prisma-auth.repository';
 import { registerAuthRoutes } from './modules/auth/auth.routes';
 import { registerUsersRoutes } from './modules/users/users.routes';
+import { registerWorkflowRoutes } from './modules/workflows/workflow.routes';
+import { registerExecutionRoutes } from './modules/executions/execution.routes';
+import { registerTaskRoutes } from './modules/tasks/task.routes';
+import { registerIntegrationRoutes } from './modules/integrations/integration.routes';
+import { registerAuditRoutes } from './modules/audit/audit.routes';
 import { registerErrorHandlers } from './shared/errors/http-error';
 import { createLoggerOptions } from './shared/logger/logger';
 
@@ -42,6 +49,7 @@ function getRequestId(request: { headers: Record<string, string | string[] | und
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyInstance> {
   const appEnv = options.env ?? loadEnv();
+  initializeTracing();
   const authRepository = options.authRepository ?? new PrismaAuthRepository(prisma);
   const healthCheck = options.healthCheck ?? {
     database: checkDatabaseConnection,
@@ -58,6 +66,7 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
   });
 
   registerErrorHandlers(app);
+  registerMetrics(app, appEnv);
 
   app.decorate('authRepository', authRepository);
 
@@ -142,6 +151,11 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
     async (api) => {
       await registerAuthRoutes(api, appEnv);
       await registerUsersRoutes(api);
+      await registerWorkflowRoutes(api);
+      await registerExecutionRoutes(api, appEnv);
+      await registerTaskRoutes(api);
+      await registerIntegrationRoutes(api);
+      await registerAuditRoutes(api);
     },
     {
       prefix: '/api/v1',
@@ -149,6 +163,10 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
   );
 
   app.get('/health', async (_request, reply) => {
+    return reply.status(200).send({ status: 'ok' });
+  });
+
+  app.get('/ready', async (_request, reply) => {
     const [database, redis] = await Promise.all([healthCheck.database(), healthCheck.redis()]);
     const isHealthy = database === 'up' && redis === 'up';
 

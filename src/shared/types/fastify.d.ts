@@ -8,5 +8,6 @@ declare module 'fastify' {
 
   interface FastifyRequest {
     auth?: AuthenticatedUser;
+    startTime?: bigint;
   }
 }

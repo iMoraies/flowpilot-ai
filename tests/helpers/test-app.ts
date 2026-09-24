@@ -15,6 +15,8 @@ export const testEnv: Env = {
   REFRESH_TOKEN_TTL_DAYS: 30,
   AUTH_RATE_LIMIT_MAX: 100,
   AUTH_RATE_LIMIT_WINDOW: '1 minute',
+  ENABLE_METRICS: false,
+  AI_PROVIDER: 'mock',
 };
 
 export async function buildTestApp() {

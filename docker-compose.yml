@@ -15,8 +15,40 @@ services:
       REFRESH_TOKEN_TTL_DAYS: 30
       AUTH_RATE_LIMIT_MAX: 20
       AUTH_RATE_LIMIT_WINDOW: "1 minute"
+      ENABLE_METRICS: true
+      AI_PROVIDER: mock
     ports:
       - "3333:3333"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3333/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build:
+      context: .
+    command: ["node", "dist/jobs/workflow-worker.js"]
+    environment:
+      NODE_ENV: development
+      PORT: 3333
+      HOST: 0.0.0.0
+      LOG_LEVEL: info
+      ENABLE_SWAGGER: false
+      DATABASE_URL: postgresql://flowpilot:flowpilot_dev_password@postgres:5432/flowpilot_ai?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: replace-with-a-long-random-secret-for-local-development
+      ACCESS_TOKEN_TTL_SECONDS: 900
+      REFRESH_TOKEN_TTL_DAYS: 30
+      AUTH_RATE_LIMIT_MAX: 20
+      AUTH_RATE_LIMIT_WINDOW: "1 minute"
+      ENABLE_METRICS: false
+      AI_PROVIDER: mock
     depends_on:
       postgres:
         condition: service_healthy

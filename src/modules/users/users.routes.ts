@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { authenticate, requireAnyRole } from '../auth/auth.guards';
 import { createUserSchema, updateUserRoleSchema, usersJsonSchemas } from './users.schemas';
 import { UsersService } from './users.service';
+import { recordAudit } from '../audit/audit.service';
 
 export async function registerUsersRoutes(app: FastifyInstance): Promise<void> {
   const usersService = new UsersService(app.authRepository);
@@ -48,6 +49,13 @@ export async function registerUsersRoutes(app: FastifyInstance): Promise<void> {
     async (request, reply) => {
       const body = createUserSchema.parse(request.body);
       const user = await usersService.createUser(request.auth!, body);
+      await recordAudit({
+        organizationId: request.auth!.organizationId,
+        actorUserId: request.auth!.userId,
+        action: 'USER_CREATED',
+        entityType: 'User',
+        entityId: user.id,
+      });
       request.log.info({ createdUserId: user.id }, 'user created');
       return reply.status(201).send(user);
     },
@@ -81,6 +89,14 @@ export async function registerUsersRoutes(app: FastifyInstance): Promise<void> {
       const params = request.params as { id: string };
       const body = updateUserRoleSchema.parse(request.body);
       const user = await usersService.updateRole(request.auth!, params.id, body);
+      await recordAudit({
+        organizationId: request.auth!.organizationId,
+        actorUserId: request.auth!.userId,
+        action: 'USER_ROLE_CHANGED',
+        entityType: 'User',
+        entityId: user.id,
+        metadata: { role: user.role },
+      });
       request.log.info({ targetUserId: user.id, role: user.role }, 'role changed');
       return user;
     },
