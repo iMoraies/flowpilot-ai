@@ -1,0 +1,43 @@
+{
+  "name": "flowpilot-ai",
+  "version": "0.1.0",
+  "description": "FlowPilot AI is a modular monolith for business process automation with queues, integrations, AI-ready architecture, and observability.",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@fastify/jwt": "^10.2.2",
+    "@fastify/rate-limit": "^11.2.0",
+    "@fastify/swagger": "^9.5.1",
+    "@fastify/swagger-ui": "^6.1.1",
+    "@prisma/client": "6.12.0",
+    "argon2": "^0.45.1",
+    "bullmq": "^5.58.7",
+    "fastify": "^5.6.0",
+    "ioredis": "^5.7.0",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/node": "^22.15.30",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "pino-pretty": "^13.1.1",
+    "prettier": "^3.6.2",
+    "prisma": "6.12.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.1",
+    "vitest": "^5.0.1"
+  }
+}
