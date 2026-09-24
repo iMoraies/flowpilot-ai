@@ -1,7 +1,8 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Activity, ClipboardList, FileClock, Gauge, LayoutDashboard, LogOut, Menu, ScrollText, Workflow, X } from 'lucide-react';
+import { ClipboardList, FileClock, Gauge, LayoutDashboard, LogOut, Menu, ScrollText, Workflow, X } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../features/auth/AuthProvider';
+import flowPilotLogo from '../assets/flowpilot-logo.png';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -25,7 +26,7 @@ export function AppLayout() {
   const nav = (
     <>
       <div className="sidebar-brand">
-        <span className="brand-mark"><Activity size={20} /></span>
+        <img className="brand-logo sidebar-logo" src={flowPilotLogo} alt="FlowPilot AI" />
         <div>
           <strong>FlowPilot AI</strong>
           <span>Operations</span>

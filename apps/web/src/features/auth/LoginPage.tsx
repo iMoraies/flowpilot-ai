@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { Bot, Lock, Mail } from 'lucide-react';
+import { Lock, Mail } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { ApiError } from '../../services/apiClient';
+import flowPilotLogo from '../../assets/flowpilot-logo.png';
 
 export function LoginPage() {
   const { user, login } = useAuth();
@@ -37,7 +38,7 @@ export function LoginPage() {
     <main className="auth-screen">
       <section className="auth-panel" aria-label="FlowPilot AI sign in">
         <div className="brand-lockup">
-          <span className="brand-mark"><Bot size={22} /></span>
+          <img className="brand-logo login-logo" src={flowPilotLogo} alt="FlowPilot AI" />
           <div>
             <strong>FlowPilot AI</strong>
             <span>Workflow operations console</span>
